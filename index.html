@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D-Printed Zeolite Monoliths</title>
+<meta name="description" content="Catalytic cracking over 3D-printed zeolite monoliths to maximize light olefins. Senior Design Project, Group 1, Yanbu Industrial College.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE  occasion: a showcase for poster day, simple student language; every number is our measured data
+   IDEA   the kiln and the lab: a dark furnace world for the 3D story, white lab paper for the evidence
+   PICTURE a real-time 3D model of our printed monolith, built from the actual Cura toolpath; a 10-step tour from paste to GC result
+   COLOUR fired-clay dark #140d0a, bone #f3ece2 (the calcined piece), ember #ff5a1f (heat and propylene), steel blue for ethylene
+   TYPE   Archivo expanded (lab-equipment lettering) + Inter
+   LAYOUT laptop: title bottom-left, piece right; phone: title top, piece middle, Start in thumb reach */
+:root{--kiln:#140d0a;--kiln2:#1f1410;--kiln3:#2c1d15;--ember:#ff5a1f;--emberT:#d9440d;--ember-l:#ffa06b;--ember-d:#b8340b;--bone:#f3ece2;--paper:#fff;--ink:#17110d;--ink2:#5d544d;--rule:#e7e0d8;--soft:#f6f2ec;--eth:#6f93b8;--but:#d9a93f;--dry:#9b928b;--oth:#5f5650;--par:#3b3430;--disp:'Archivo','Arial Narrow',system-ui,sans-serif;--text:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color-scheme:light}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:68px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--text);overflow-x:clip}
+body.touring{overflow:hidden}
+body.touring .nav{display:none}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ember);outline-offset:3px}
+.wrap{max-width:1240px;margin:0 auto}
+.band{padding-block:clamp(56px,7vw,112px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--disp);font-stretch:112%;letter-spacing:-.02em;text-wrap:balance;margin:0}
+h2{font-size:clamp(30px,4.2vw,48px);line-height:1.05;font-weight:800;margin-bottom:18px}
+h3{font-size:20px;line-height:1.2;font-weight:700}
+p{margin:0 0 14px;max-width:64ch}
+.lead{font-size:18px;color:var(--ink2)}
+.nw{white-space:nowrap}
+.num{font-variant-numeric:tabular-nums}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:40;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 max(5vw,16px);color:var(--bone);transition:background .3s,color .3s,box-shadow .3s}
+.nav.solid{background:rgba(255,255,255,.94);color:var(--ink);box-shadow:0 1px 0 var(--rule);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px;font:700 15px/1 var(--disp);font-stretch:110%;text-decoration:none;white-space:nowrap}
+.brand svg{width:26px;height:26px;flex:none}
+.links{display:flex;align-items:center;gap:4px}
+.links a{padding:10px 12px;border-radius:999px;font-size:14px;font-weight:500;text-decoration:none;opacity:.86}
+.links a:hover{opacity:1;background:rgba(128,110,95,.14)}
+.pill{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:999px;border:0;background:var(--ember);color:#1a0b05;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.pill svg{width:12px;height:12px}
+@media(max-width:860px){.links a.hide-s{display:none}}
+@media(max-width:520px){.links a{display:none}.brand span{font-size:14px}}
+
+/* hero */
+.hero{position:relative;min-height:560px;height:100vh;height:100svh;max-height:1000px;background:radial-gradient(90% 70% at 66% 46%,#3d1f11 0%,#211309 40%,var(--kiln) 76%);color:var(--bone);overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E")}
+.stage{position:absolute;inset:0;z-index:0}
+.stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.stage.full{position:fixed;inset:0;z-index:60;background:var(--kiln)}
+.stage.full canvas{touch-action:none;cursor:default}
+.hero-fallback{position:absolute;z-index:0;width:min(46vh,62vw);right:12%;top:50%;transform:translateY(-50%);display:none;opacity:.9}
+.no-gl .hero-fallback{display:block}
+.no-gl .stage,.no-gl .drag-hint,.no-gl [data-tour]{display:none!important}
+.hero-in{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:28px;padding:88px max(5vw,16px) clamp(32px,6vh,64px);pointer-events:none}
+.hero-in>*{pointer-events:auto}
+.hero h1{font-size:clamp(30px,4.6vw,62px);line-height:1.02;font-weight:850;max-width:13.5em}
+.hero h1 span{display:block;font-weight:500;color:rgba(243,236,226,.82)}
+.hero .sub{font-size:clamp(16px,1.45vw,19px);line-height:1.5;color:rgba(243,236,226,.8);max-width:36em;margin:16px 0 0}
+.hero-top{max-width:640px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border-radius:999px;border:0;font:600 16px/1 var(--text);text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform .15s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn svg{width:16px;height:16px;flex:none}
+.btn-start{background:var(--ember);color:#1a0b05;box-shadow:0 0 0 0 rgba(255,90,31,.55);animation:pulse 2.4s ease-out infinite}
+.btn-start:hover{background:#ff7038}
+.btn-ghost{background:rgba(243,236,226,.08);color:var(--bone);border:1px solid rgba(243,236,226,.3)}
+.btn-ghost:hover{background:rgba(243,236,226,.16)}
+.btn-ink{background:var(--ink);color:#fff}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,90,31,.55)}70%{box-shadow:0 0 0 18px rgba(255,90,31,0)}100%{box-shadow:0 0 0 0 rgba(255,90,31,0)}}
+.meta{font-size:13px;line-height:1.5;color:rgba(243,236,226,.62);margin:16px 0 0}
+.drag-hint{position:absolute;right:max(5vw,16px);bottom:clamp(32px,6vh,64px);margin:0;font-size:13px;color:rgba(243,236,226,.62);display:flex;align-items:center;gap:8px;pointer-events:none}
+.drag-hint svg{width:22px;height:14px}
+@media(max-width:899px){
+ .hero{background:radial-gradient(100% 60% at 50% 55%,#3d1f11 0%,#211309 45%,var(--kiln) 80%)}
+ .hero-in{justify-content:space-between;padding-top:80px}
+ .drag-hint{left:0;right:0;justify-content:center;bottom:auto;top:var(--hintY,62%)}
+ .hero-fallback{right:auto;left:50%;top:56%;transform:translate(-50%,-50%);width:min(56vw,300px)}
+}
+@media(max-width:899px) and (max-height:720px){.hero h1{font-size:26px}.hero .sub{font-size:15px;margin-top:10px}.meta{display:none}.hero-in{gap:16px}}
+@media(max-width:380px){.btn{padding:0 18px;font-size:15px}}
+
+/* tour overlay */
+.tour{position:fixed;inset:0;z-index:70;pointer-events:none;color:var(--bone);font-size:16px}
+.tour[hidden]{display:none}
+.tour .ui{pointer-events:auto}
+.t-scrim{position:absolute;left:0;right:0;bottom:0;height:52%;background:linear-gradient(to top,rgba(9,5,3,.9) 0%,rgba(9,5,3,.55) 45%,rgba(9,5,3,0) 100%);pointer-events:none}
+.t-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,3vw) 0}
+.prog{flex:1;display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:5px}
+.prog button{height:28px;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:center}
+.prog i{display:block;width:100%;height:3px;border-radius:3px;background:rgba(243,236,226,.24);overflow:hidden}
+.prog b{display:block;height:100%;width:0;background:var(--bone)}
+.t-x{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid rgba(243,236,226,.3);background:rgba(20,13,10,.55);cursor:pointer;display:grid;place-items:center}
+.t-x svg{width:16px;height:16px}
+.chips{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:max(16px,3vw);right:max(16px,3vw);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(20,13,10,.62);border:1px solid rgba(243,236,226,.2);font-size:13px;font-weight:600;white-space:nowrap;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .3s}
+.chip.temp{color:#ffd2b8;border-color:rgba(255,90,31,.5)}
+.chip.temp i{width:8px;height:8px;border-radius:50%;background:var(--ember);box-shadow:0 0 10px var(--ember)}
+.chip[hidden]{display:none}
+.cr{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.t-chart{position:absolute;left:max(16px,3vw);right:max(16px,3vw);top:calc(100px + env(safe-area-inset-top,0px));padding:10px 12px 4px;border-radius:16px;background:rgba(14,9,7,.8);border:1px solid rgba(243,236,226,.16);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:none}
+.t-chart[hidden]{display:none}
+.t-chart .tc-h{font-size:13px;font-weight:600;color:rgba(243,236,226,.86);margin:0 0 4px}
+.t-chart svg{display:block;width:100%;height:150px;overflow:visible}
+.t-chart text{font:600 11px var(--text);fill:rgba(243,236,226,.92)}
+.t-chart .ax{font-size:10.5px;font-weight:500;fill:rgba(243,236,226,.6)}
+.t-chart .hot{fill:#ffb48d}
+@media(min-width:900px){.t-chart{left:auto;right:3vw;width:440px}.t-chart svg{height:190px}}
+@media(max-width:899px) and (max-height:700px){.t-chart svg{height:112px}}
+.cap{position:absolute;left:max(16px,3vw);right:max(16px,3vw);bottom:calc(88px + env(safe-area-inset-bottom,0px));max-width:600px;transition:opacity .25s,transform .25s}
+.cap.swap{opacity:0;transform:translateY(6px)}
+.cap h2{font-size:clamp(26px,3.2vw,42px);line-height:1.04;font-weight:800;margin:0 0 10px;color:var(--bone)}
+.cap p{margin:0;font-size:16px;line-height:1.5;color:rgba(243,236,226,.88);max-width:46ch}
+.eq{display:inline-block;margin-top:12px;padding:8px 14px;border-radius:12px;background:rgba(255,90,31,.14);border:1px solid rgba(255,90,31,.45);font:700 17px/1.3 var(--text);color:#ffe3d4;white-space:nowrap}
+.eq[hidden]{display:none}
+.t-ctrl{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:10px;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.t-ctrl button{min-width:52px;height:52px;padding:0 18px;border-radius:999px;border:1px solid rgba(243,236,226,.28);background:rgba(20,13,10,.6);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.t-ctrl button:hover{background:rgba(60,40,30,.75)}
+.t-ctrl svg{width:16px;height:16px}
+.t-ctrl .go{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.t-ctrl[hidden]{display:none}
+.t-ctrl button:disabled{opacity:.35;cursor:default}
+.lbls{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.lbl{position:absolute;left:0;top:0;width:0;height:0;opacity:0;transition:opacity .35s;will-change:transform}
+.lbl i{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--bone);box-shadow:0 0 0 3px rgba(20,13,10,.5)}
+.lbl span{position:absolute;left:12px;bottom:10px;white-space:nowrap;padding:6px 10px;border-radius:999px;background:rgba(20,13,10,.78);border:1px solid rgba(243,236,226,.28);font-size:13px;font-weight:600;line-height:1.2}
+.lbl.l span{left:auto;right:12px}
+.lbl.hot i{background:var(--ember);box-shadow:0 0 12px var(--ember)}
+.mix{position:absolute;left:0;right:0;bottom:0;max-height:62%;overflow:auto;padding:18px max(16px,3vw) calc(18px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,rgba(14,9,7,.97) 70%,rgba(14,9,7,.86));border-top:1px solid rgba(243,236,226,.14)}
+.mix[hidden]{display:none}
+.mix h2{font-size:26px;line-height:1.05;font-weight:800;margin:0 0 6px;color:var(--bone)}
+.mix>p{font-size:14px;color:rgba(243,236,226,.78);margin:0 0 12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.seg button{min-height:40px;padding:0 11px;border-radius:999px;border:1px solid rgba(243,236,226,.28);background:transparent;cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.mrow{display:grid;grid-template-columns:7.2em minmax(0,1fr) 3.6em;align-items:center;gap:10px;margin:7px 0;font-size:14px}
+.mrow .nm{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.mrow .nm i{width:10px;height:10px;border-radius:3px;flex:none}
+.mrow .tr{height:14px;border-radius:4px;background:rgba(243,236,226,.1);overflow:hidden}
+.mrow .tr b{display:block;height:100%;border-radius:4px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.mrow .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.mconv{font-size:13px;color:rgba(243,236,226,.72);margin:10px 0 14px}
+.mact{display:flex;flex-wrap:wrap;gap:10px}
+.mact .btn{min-height:46px;font-size:15px;padding:0 18px;animation:none}
+@media(min-width:900px){
+ .mix{left:auto;right:3vw;top:calc(96px + env(safe-area-inset-top,0px));bottom:auto;width:400px;max-height:calc(100% - 130px);border:1px solid rgba(243,236,226,.16);border-radius:20px}
+ .cap{bottom:96px}
+}
+.flash{position:fixed;inset:0;z-index:80;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#fff6ec 0%,#ffb27d 22%,rgba(255,90,31,.85) 42%,rgba(20,13,10,.96) 78%);transition:opacity .26s ease}
+.flash.on{opacity:1}
+
+/* idea */
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:center}
+.vs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.vs figure{margin:0;background:var(--soft);border-radius:20px;padding:18px 18px 14px}
+.vs svg{width:100%;height:auto;display:block}
+.vs figcaption{font-size:14px;line-height:1.4;color:var(--ink2);margin-top:12px}
+.vs figcaption b{display:block;color:var(--ink);font-size:15px;margin-bottom:2px}
+.cite{font-size:13px;color:var(--ink2);vertical-align:super;line-height:0}
+
+/* make */
+.samples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:30px 0 18px}
+.card{background:var(--soft);border-radius:20px;padding:20px}
+.card h3{font-size:26px;margin-bottom:4px}
+.card .tag{font-size:14px;color:var(--ink2);margin:0 0 14px}
+.tv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.tv figure{margin:0;text-align:center}
+.tv svg{width:100%;max-width:150px;height:auto;margin:0 auto;display:block}
+.tv figcaption{font-size:13px;color:var(--ink2);margin-top:6px}
+.tv-bg{fill:#2e2019}
+.tv-f{fill:none;stroke:#e4d5c1;stroke-width:1.12;stroke-linecap:round}
+.spec{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-size:14px}
+.spec dt{color:var(--ink2)}
+.spec dd{margin:0;font-weight:600}
+.refs{font-size:15px;color:var(--ink2);border-top:1px solid var(--rule);padding-top:16px;margin-top:4px;max-width:none}
+.made{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center;margin-top:clamp(40px,6vw,72px)}
+.photo{margin:0;background:#fff}
+.photo figcaption{font-size:13px;color:var(--ink2);margin-top:8px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.steps li{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:16px;padding:14px 0;border-top:1px solid var(--rule)}
+.steps li:last-child{border-bottom:1px solid var(--rule)}
+.steps b{font:800 20px/1.25 var(--disp);font-stretch:112%}
+.steps p{margin:0;font-size:15px}
+
+/* test (dark) */
+.dark{background:var(--kiln2);color:var(--bone)}
+.dark .lead{color:rgba(243,236,226,.78)}
+.route{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:34px 0 26px}
+.route::before{content:"";position:absolute;left:10%;right:10%;top:31px;height:2px;background:rgba(243,236,226,.2)}
+.route .tok{position:absolute;top:27px;left:10%;width:10px;height:10px;border-radius:50%;background:var(--ember);box-shadow:0 0 14px var(--ember);animation:tok 6s linear infinite}
+@keyframes tok{0%{left:10%;opacity:0}6%{opacity:1}94%{opacity:1}100%{left:calc(90% - 10px);opacity:0}}
+.st{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 2px 6px;border:0;background:none;cursor:pointer;text-align:center}
+.st .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--kiln3);border:1px solid rgba(243,236,226,.24);transition:background .2s,transform .2s}
+.st .ic svg{width:30px;height:30px}
+.st:hover .ic{transform:translateY(-2px)}
+.st[aria-pressed=true] .ic{background:var(--ember);color:#1a0b05;border-color:var(--ember)}
+.st span{font-size:14px;font-weight:600;line-height:1.2}
+.st small{font-size:12px;color:rgba(243,236,226,.62);line-height:1.2}
+.panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center;background:var(--kiln3);border-radius:24px;padding:clamp(18px,3vw,32px);min-height:360px}
+.pimg{background:#fff;border-radius:16px;padding:14px;display:flex;gap:10px;justify-content:center;align-items:center;min-height:300px}
+.pimg img{max-height:320px;width:auto;object-fit:contain}
+.pimg .tube{max-height:320px;max-width:22%}
+.pimg.ill{background:var(--kiln2);border:1px dashed rgba(243,236,226,.2)}
+.pimg.ill svg{width:min(240px,70%);height:auto;color:var(--bone)}
+.ptxt h3{font-size:28px;margin-bottom:12px}
+.figs{display:flex;flex-wrap:wrap;gap:12px 28px;margin:0 0 16px}
+.figs div{display:flex;flex-direction:column}
+.figs b{font:800 clamp(30px,3.6vw,42px)/1 var(--disp);font-stretch:110%;color:#ffb48d;white-space:nowrap}
+.figs span{font-size:13px;color:rgba(243,236,226,.7);margin-top:6px}
+.ptxt p{color:rgba(243,236,226,.86);font-size:16px}
+.ptxt .pc{font-size:13px;color:rgba(243,236,226,.56);margin:0}
+.conds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:28px;border-top:1px solid rgba(243,236,226,.18)}
+.conds div{padding:16px 16px 0 0}
+.conds b{display:block;font:800 26px/1.1 var(--disp);font-stretch:110%;white-space:nowrap}
+.conds span{font-size:14px;color:rgba(243,236,226,.7)}
+
+/* results */
+.res-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:clamp(24px,4vw,64px);align-items:start;margin-top:12px}
+.big{font:850 clamp(76px,11vw,148px)/.9 var(--disp);font-stretch:108%;letter-spacing:-.035em;color:var(--emberT);white-space:nowrap}
+.big small{font-size:.42em;letter-spacing:0}
+.bigcap{font-size:16px;margin:14px 0 6px;font-weight:600}
+.bigcap+p{color:var(--ink2);font-size:15px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;margin:0 0 6px;padding:0;list-style:none}
+.legend li{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.legend i{width:12px;height:12px;border-radius:50%;flex:none}
+.fig{position:relative;min-height:290px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.fig text{font-family:var(--text);font-size:14px;fill:var(--ink2);paint-order:stroke;stroke:#fff;stroke-width:4px}
+.fig .tl{font-weight:700;fill:var(--ink)}
+.fig .vl{font-weight:700;font-variant-numeric:tabular-nums}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:clamp(32px,5vw,56px) 0 0;border-top:2px solid var(--ink)}
+.facts div{padding:16px 18px 0 0}
+.facts b{display:block;font:800 clamp(24px,2.6vw,32px)/1.1 var(--disp);font-stretch:108%}
+.facts b em{display:block;font-style:normal;color:var(--ink2);font-weight:600;font-size:.6em;margin-top:2px}
+.facts span{display:block;font-size:14px;color:var(--ink2);margin-top:6px;line-height:1.45}
+.explore{margin-top:clamp(48px,7vw,88px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px)}
+.explore h3{font-size:24px;margin-bottom:6px}
+.explore .hint{font-size:14px;color:var(--ink2);margin:0 0 14px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tabs button{min-height:44px;padding:0 15px;border-radius:999px;border:1px solid #d6cdc3;background:#fff;cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap}
+.tabs button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bars{margin-top:16px}
+.brow{display:grid;grid-template-columns:8.6em minmax(0,1fr) 4.2em;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule)}
+.brow .nm{font-weight:600;font-size:15px;line-height:1.2}
+.brow .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--ink2)}
+.brow .tr{height:24px;background:var(--soft);border-radius:6px;overflow:hidden}
+.brow .tr b{display:block;height:100%;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.brow .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mdef{font-size:13.5px;color:var(--ink2);margin-top:12px}
+.stack{display:flex;height:34px;border-radius:8px;overflow:hidden;background:var(--soft)}
+.stack b{display:flex;align-items:center;justify-content:center;height:100%;font-size:12.5px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.srow{display:grid;grid-template-columns:8.6em minmax(0,1fr);gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule)}
+.keys{display:flex;flex-wrap:wrap;gap:6px 14px;list-style:none;padding:0;margin:14px 0 0;font-size:13px;color:var(--ink2)}
+.keys li{display:flex;align-items:center;gap:6px}
+.keys i{width:10px;height:10px;border-radius:3px}
+details{margin-top:clamp(36px,5vw,56px);border-top:1px solid var(--rule);padding-top:14px}
+summary{cursor:pointer;font:700 18px/1.3 var(--disp);font-stretch:108%;min-height:44px;display:flex;align-items:center}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}
+th{font-size:12.5px;color:var(--ink2);font-weight:600;vertical-align:bottom}
+th:first-child,td:first-child{text-align:left}
+tbody tr.grp td{border-top:2px solid var(--ink)}
+.note{font-size:13.5px;color:var(--ink2);margin-top:14px;max-width:none}
+
+/* learned */
+.learned{background:var(--soft)}
+.ll{list-style:none;padding:0;margin:26px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 48px}
+.ll li{padding:18px 0;border-top:1px solid #ddd3c8;font-size:17px;line-height:1.5}
+.ll b{font-family:var(--disp);font-stretch:108%}
+.next{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;list-style:none;padding:0}
+.next li{padding:10px 16px;border-radius:999px;background:#fff;border:1px solid #ddd3c8;font-size:15px;font-weight:500}
+
+/* team */
+.team{background:var(--kiln);color:var(--bone)}
+.people{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin:30px 0 36px}
+.people div{border-top:1px solid rgba(243,236,226,.24);padding-top:14px}
+.people b{display:block;font:800 clamp(22px,2.2vw,28px)/1.15 var(--disp);font-stretch:110%}
+.people span{font-size:14px;color:rgba(243,236,226,.66)}
+.org{font-size:16px;color:rgba(243,236,226,.8);max-width:none}
+.reflist{font-size:13.5px;color:rgba(243,236,226,.62);padding-left:1.3em;margin:24px 0 0;max-width:90ch}
+.reflist li{margin-bottom:6px}
+footer{background:#0d0806;color:rgba(243,236,226,.7);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+footer p{margin:0}
+footer .cta .btn{min-height:46px;font-size:15px;animation:none}
+
+@media(max-width:899px){
+ .split,.made,.res-head,.explore,.panel{grid-template-columns:minmax(0,1fr)}
+ .samples{grid-template-columns:minmax(0,1fr)}
+ .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .facts div{padding-bottom:16px}
+ .ll{grid-template-columns:minmax(0,1fr)}
+ .people{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .conds{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .conds div{padding-bottom:12px}
+ .panel{min-height:0}
+ .pimg{min-height:220px}
+ .pimg img{max-height:240px}
+ .pimg .tube{max-height:240px}
+}
+@media(max-width:600px){
+ .route{gap:2px}
+ .st .ic{width:54px;height:54px}
+ .st .ic svg{width:26px;height:26px}
+ .route::before{top:26px}
+ .route .tok{top:22px}
+ .st span{font-size:12.5px}
+ .st small{display:none}
+ .brow,.srow{grid-template-columns:6.6em minmax(0,1fr) 3.8em}
+ .srow{grid-template-columns:6.6em minmax(0,1fr)}
+ .brow .nm{font-size:14px}
+ .steps li{grid-template-columns:minmax(0,1fr);gap:4px}
+ .vs{gap:10px}
+ .vs figure{padding:12px 12px 10px;border-radius:16px}
+ .facts b{font-size:21px}
+ .conds b{font-size:21px}
+ table{font-size:13px}
+ th,td{padding:6px 7px}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .btn-start{animation:none}
+ .route .tok{animation:none;display:none}
+ .cap,.flash,.brow .tr b,.stack b,.mrow .tr b{transition:none}
+}
+</style>
+</head>
+<body>
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="Back to top">
+    <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 13h14M13 6v14M8 8l10 10M18 8 8 18" stroke="currentColor" stroke-width="1.6" opacity=".55"/></svg>
+    <span>Printed catalysts</span>
+  </a>
+  <nav class="links" aria-label="Sections">
+    <a href="#idea" class="hide-s">Idea</a>
+    <a href="#make" class="hide-s">Make</a>
+    <a href="#test" class="hide-s">Test</a>
+    <a href="#results">Results</a>
+    <a href="#team" class="hide-s">Team</a>
+    <button class="pill" type="button" data-tour><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>3D tour</button>
+  </nav>
+</header>
+
+<main>
+<section class="hero" id="top" aria-label="Introduction">
+  <div class="stage" id="stage"><canvas id="gl" role="img" aria-label="3D model of our printed ZSM-5 monolith, built from its Cura toolpath"></canvas></div>
+  <svg class="hero-fallback" id="fallbackSvg" viewBox="-6.4 -6.4 12.8 12.8" aria-hidden="true"></svg>
+  <div class="hero-in">
+    <div class="hero-top" id="heroTop">
+      <h1>Catalytic cracking over 3D&#8209;printed zeolite monoliths <span>to maximize light olefins</span></h1>
+      <p class="sub">We 3D&#8209;printed a catalyst from ZSM&#8209;5 zeolite and red bentonite clay. Then we tested how much propylene it makes from n&#8209;heptane.</p>
+    </div>
+    <div class="hero-bot" id="heroBot">
+      <div class="cta">
+        <button class="btn btn-start" id="startBtn" type="button" data-tour><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.5l11 6.5-11 6.5z" fill="currentColor"/></svg>Start the 3D tour <span style="font-weight:500;opacity:.7">&middot; 2 min</span></button>
+        <a class="btn btn-ghost" href="#results">See the results</a>
+      </div>
+      <p class="meta">Senior Design Project, Group 1<br>Department of Chemical Engineering, Yanbu Industrial College</p>
+    </div>
+  </div>
+  <p class="drag-hint" id="dragHint" aria-hidden="true"><svg viewBox="0 0 22 14"><path d="M1 7h20M1 7l4-4M1 7l4 4M21 7l-4-4M21 7l-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Drag to turn the catalyst</p>
+</section>
+
+<section class="band" id="idea">
+  <div class="wrap split">
+    <div>
+      <h2>Why print a catalyst?</h2>
+      <p class="lead">Propylene is used to make plastics. The world needs about 4&ndash;5&nbsp;% more of it every year, and supply is not keeping up.<span class="cite">[1]</span></p>
+      <p>ZSM&#8209;5 is a catalyst that helps make more propylene when hydrocarbons are cracked. It is usually used as a powder or as small random pellets. Then the gas does not flow evenly, the pressure drop is high, and some propylene breaks down further into ethylene and dry gas.</p>
+      <p>Our idea: 3D&#8209;print the ZSM&#8209;5 into a piece with open channels,<span class="cite">[5]</span> using a clay printer,<span class="cite">[2,&nbsp;3]</span> and compare it with the same ZSM&#8209;5 used as crushed grains.</p>
+    </div>
+    <div class="vs">
+      <figure><svg id="grainsSvg" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Sketch: random crushed grains filling a tube"></svg><figcaption><b>Crushed grains</b>The parent ZSM&#8209;5: pressed, crushed and sieved to 250&ndash;350&nbsp;&micro;m</figcaption></figure>
+      <figure><svg id="latticeSvg" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Top view of our printed monolith: two walls and a 45 degree grid"></svg><figcaption><b>Our printed piece</b>Top view of our design: two round walls and a grid at 45&deg;</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="make" style="padding-top:0">
+  <div class="wrap">
+    <h2>We printed three catalysts</h2>
+    <p class="lead">All three have the same shape: a cylinder 11.3&nbsp;mm wide and 15&nbsp;mm tall, with two round walls, a grid inside (45&deg;) and four zigzag bands (22&deg;). We changed one thing at a time. ZR&#8209;1A and ZR&#8209;2A have different amounts of clay. ZR&#8209;2A and ZR&#8209;2B have a different infill (how full the inside is).</p>
+    <div class="samples">
+      <article class="card">
+        <h3>ZR&#8209;1A</h3><p class="tag">More clay. Compare with ZR&#8209;2A.</p>
+        <div class="tv"><figure><svg class="tvs" data-d="0.8" data-b="0" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Top view of a grid layer at 80 percent infill"></svg><figcaption>Grid layer, 80&nbsp;%</figcaption></figure><figure><svg class="tvs" data-d="0.8" data-b="1" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Top view of a zigzag band layer at 80 percent infill"></svg><figcaption>Zigzag band, 80&nbsp;%</figcaption></figure></div>
+        <dl class="spec"><dt>Mix</dt><dd>70&nbsp;% ZSM&#8209;5, 30&nbsp;% clay (14&nbsp;g + 6&nbsp;g)</dd><dt>Infill</dt><dd>80&nbsp;%</dd></dl>
+      </article>
+      <article class="card">
+        <h3>ZR&#8209;2A</h3><p class="tag">Used in both comparisons.</p>
+        <div class="tv"><figure><svg class="tvs" data-d="0.8" data-b="0" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Top view of a grid layer at 80 percent infill"></svg><figcaption>Grid layer, 80&nbsp;%</figcaption></figure><figure><svg class="tvs" data-d="0.8" data-b="1" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Top view of a zigzag band layer at 80 percent infill"></svg><figcaption>Zigzag band, 80&nbsp;%</figcaption></figure></div>
+        <dl class="spec"><dt>Mix</dt><dd>80&nbsp;% ZSM&#8209;5, 20&nbsp;% clay (17&nbsp;g + 4&nbsp;g)</dd><dt>Infill</dt><dd>80&nbsp;%</dd></dl>
+      </article>
+      <article class="card">
+        <h3>ZR&#8209;2B</h3><p class="tag">Less infill. Compare with ZR&#8209;2A.</p>
+        <div class="tv"><figure><svg class="tvs" data-d="0.6" data-b="0" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Top view of a grid layer at 60 percent infill"></svg><figcaption>Grid layer, 60&nbsp;%</figcaption></figure><figure><svg class="tvs" data-d="0.6" data-b="1" viewBox="-6.4 -6.4 12.8 12.8" role="img" aria-label="Top view of a zigzag band layer at 60 percent infill"></svg><figcaption>Zigzag band, 60&nbsp;%</figcaption></figure></div>
+        <dl class="spec"><dt>Mix</dt><dd>Same mix as ZR&#8209;2A</dd><dt>Infill</dt><dd>60&nbsp;%</dd></dl>
+      </article>
+    </div>
+    <p class="note" style="margin:-4px 0 14px">Layer drawings made from our Cura print settings (1.2&nbsp;mm lines, grid at 45&deg;, zigzag at 22&deg;).</p>
+    <p class="refs"><b style="color:var(--ink)">We also tested, the same way:</b> the parent ZSM&#8209;5 (the same zeolite, not printed: pressed at 8&nbsp;t for 1&nbsp;min, crushed and sieved to 250&ndash;350&nbsp;&micro;m), red bentonite clay alone (baked, crushed, 250&ndash;350&nbsp;&micro;m) and an empty tube with no catalyst.</p>
+
+    <div class="made">
+      <figure class="photo">
+        <img src="printer.jpg" width="1600" height="819" loading="lazy" alt="Our Eazao clay printer, with a close-up of printed pieces on its bed">
+        <figcaption>Our Eazao clay printer, with printed pieces on its bed</figcaption>
+      </figure>
+      <ol class="steps">
+        <li><b>Mix</b><p>ZSM&#8209;5 powder (SiO&#8322;/Al&#8322;O&#8323; = 23), red bentonite clay and water. We mixed and kneaded it, then let it rest for 2 days.</p></li>
+        <li><b>Print</b><p>Eazao clay printer, 1.2&nbsp;mm nozzle, 1&nbsp;mm layers. Top and bottom are left open so gas can pass through.</p></li>
+        <li><b>Dry</b><p>48 hours in air.</p></li>
+        <li><b>Bake</b><p>Heated at 3&nbsp;&deg;C per minute to 650&nbsp;&deg;C, kept there for 3 hours, then cooled in the furnace (calcination). The pieces come out about 11&nbsp;mm wide and 12&nbsp;mm tall.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="band dark" id="test">
+  <div class="wrap">
+    <h2>How we tested them</h2>
+    <p class="lead">We tested every catalyst in the same setup. Tap each part to see it.</p>
+    <div class="route" id="route" role="group" aria-label="Parts of the test setup"><span class="tok" aria-hidden="true"></span></div>
+    <div class="panel" id="panel" aria-live="polite"></div>
+    <div class="conds">
+      <div><b>0.4&nbsp;g</b><span>catalyst in every test</span></div>
+      <div><b>100&nbsp;mL/min</b><span>N&#8322; carrying n&#8209;heptane</span></div>
+      <div><b>500&rarr;600&nbsp;&deg;C</b><span>tested at 500, 550 and 600&nbsp;&deg;C</span></div>
+      <div><b>1&nbsp;atm</b><span>normal air pressure at the outlet</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="results">
+  <div class="wrap">
+    <h2 style="max-width:22em">All three printed catalysts made a bigger share of propylene than the parent ZSM&#8209;5, at every temperature</h2>
+    <div class="res-head">
+      <div>
+        <div class="big num" id="bigNum">32.8<small>&nbsp;%</small></div>
+        <p class="bigcap">Propylene share of the products, ZR&#8209;2B at 500&nbsp;&deg;C</p>
+        <p>The parent ZSM&#8209;5 (crushed grains) gave 24.3&nbsp;% under the same conditions.</p>
+      </div>
+      <div>
+        <ul class="legend" id="dbLegend"></ul>
+        <div class="fig" id="dbFig"><svg id="dbSvg" role="img" aria-label="Propylene share at 500, 550 and 600 degrees C for the parent ZSM-5 and the three printed catalysts"></svg></div>
+        <p class="note" style="margin-top:6px">Propylene share (selectivity): mol&nbsp;% of the products, not counting unreacted n&#8209;heptane.</p>
+      </div>
+    </div>
+    <div class="facts" id="facts">
+      <div><b class="num">1.53&ndash;1.56 <em>vs 0.71</em></b><span>Propylene made for each ethylene at 500&nbsp;&deg;C (P/E ratio), printed vs parent</span></div>
+      <div><b class="num">16.6&ndash;17.9&nbsp;% <em>vs 28.4&nbsp;%</em></b><span>Dry gas (methane + ethane) at 600&nbsp;&deg;C, printed vs parent. Less is better.</span></div>
+      <div><b class="num">98.6&ndash;99.8&nbsp;%</b><span>of the n&#8209;heptane reacted at 500&nbsp;&deg;C on the printed catalysts (parent 99.9&nbsp;%, no catalyst 26.7&nbsp;%)</span></div>
+      <div><b class="num">21 tests</b><span>GC tests in total: 4 catalysts, clay alone and an empty tube, 500&ndash;600&nbsp;&deg;C (clay alone from 350&nbsp;&deg;C)</span></div>
+    </div>
+
+    <div class="explore">
+      <div>
+        <h3>Compare the catalysts</h3>
+        <p class="hint">Pick what to compare and a temperature.</p>
+        <div class="tabs" id="metricTabs" role="group" aria-label="Result"></div>
+        <div class="tabs" id="tempTabs" role="group" aria-label="Temperature"></div>
+        <div class="bars" id="bars"></div>
+        <p class="mdef" id="mdef"></p>
+      </div>
+      <div>
+        <h3>Where the n&#8209;heptane went</h3>
+        <p class="hint" id="mixHint">What came out at 500&nbsp;&deg;C (mol&nbsp;% of the products).</p>
+        <div id="stacks"></div>
+        <ul class="keys" id="keys"></ul>
+      </div>
+    </div>
+
+    <details>
+      <summary>All 21 GC tests</summary>
+      <div class="scroll"><table id="table"></table></div>
+      <p class="note">Shares are mol&nbsp;% of the products (unreacted n&#8209;heptane not counted). Conversion = 100 &minus; n&#8209;heptane mol&nbsp;% in the outlet gas. TLO = total light olefins (ethylene + propylene + butenes). Dry gas = methane + ethane. BTX = aromatics. P/E = propylene/ethylene. O/P = olefins/paraffins in the products. CMR = (C&#8321; + C&#8322; + ethylene)/i&#8209;butane. n/a: no ethylene or no i&#8209;butane peak. Each sample was tested at 500, then 550, then 600&nbsp;&deg;C, about 10&nbsp;min after reaching each temperature. Moles come from GC peak areas, calibrated with a standard gas of 7 known gases.</p>
+    </details>
+  </div>
+</section>
+
+<section class="band learned" id="learned">
+  <div class="wrap">
+    <h2>What we learned</h2>
+    <ul class="ll">
+      <li><b>They are strong enough.</b> The printed pieces kept their shape through baking at 650&nbsp;&deg;C and testing up to 600&nbsp;&deg;C.</li>
+      <li><b>More propylene, less waste.</b> All three printed catalysts gave a bigger share of propylene, 2 to 3 times more propylene for each ethylene, and less dry gas than the parent ZSM&#8209;5, at every temperature.</li>
+      <li><b>Why it may work.</b> Our results suggest that less propylene cracked again into ethylene and dry gas.</li>
+      <li><b>Best result.</b> ZR&#8209;2B (80/20, 60&nbsp;% infill) at 500&nbsp;&deg;C: 32.8&nbsp;% propylene, with 99.8&nbsp;% of the n&#8209;heptane reacted.</li>
+      <li><b>The downside.</b> At 550 and 600&nbsp;&deg;C the printed catalysts reacted less n&#8209;heptane (71.6&ndash;93.5&nbsp;%) than the parent ZSM&#8209;5 (above 99&nbsp;%).</li>
+    </ul>
+    <h3 style="margin-top:34px">Next steps</h3>
+    <ul class="next">
+      <li>Measure coke on used pieces (TGA)</li>
+      <li>Run longer tests</li>
+      <li>Check the crystal structure (XRD)</li>
+      <li>Compare the pressure drop with crushed grains</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band team" id="team">
+  <div class="wrap">
+    <h2>The team</h2>
+    <div class="people">
+      <div><b>Hazim Aljohani</b></div>
+      <div><b>Jehad Farran</b></div>
+      <div><b>Hazem Alhazmi</b></div>
+      <div><b>Dr. Abdullah AlHelali</b><span>Supervisor</span></div>
+    </div>
+    <p class="org">Senior Design Project, Group 1, 1st semester 2026/2027. Department of Chemical Engineering, Yanbu Industrial College.</p>
+    <ol class="reflist">
+      <li>N. S. Almuqati et al., &ldquo;Catalytic production of light olefins: perspective and prospective,&rdquo; <i>Fuel</i>, 2024.</li>
+      <li>J. Lefevere et al., &ldquo;3D&#8209;printing of hierarchical porous ZSM&#8209;5: the importance of the binder system,&rdquo; <i>Mater. Des.</i>, 2017.</li>
+      <li>S. Lawson et al., &ldquo;Direct ink writing of metal oxide/H&#8209;ZSM&#8209;5 catalysts for n&#8209;hexane cracking,&rdquo; <i>ACS Appl. Mater. Interfaces</i>, 2021.</li>
+      <li>X. Zhang et al., &ldquo;n&#8209;Heptane catalytic cracking on hierarchical ZSM&#8209;5 zeolite: the effect of mesopores,&rdquo; <i>Chem. Eng. Sci.</i>, 2017.</li>
+      <li>J. A. Moulijn et al., &ldquo;Monolithic catalysts and reactors,&rdquo; <i>Adv. Catal.</i>, 2011.</li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<footer class="band" style="padding-block:28px">
+  <div class="wrap">
+    <p>Data: our GC results (corrected calculation). Photos: our lab setup.</p>
+    <div class="cta"><button class="btn btn-start" type="button" data-tour><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.5l11 6.5-11 6.5z" fill="currentColor"/></svg>Replay the 3D tour</button><a class="btn btn-ghost" href="#top">Back to top</a></div>
+  </div>
+</footer>
+
+<div class="tour" id="tour" hidden role="dialog" aria-modal="true" aria-label="3D tour">
+  <div class="t-scrim"></div>
+  <div class="lbls" id="lbls"></div>
+  <div class="t-top ui">
+    <div class="prog" id="prog"></div>
+    <button class="t-x" id="tClose" type="button" aria-label="Close the tour"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="chips"><span class="chip" id="tScale">Real size</span><span class="cr"><span class="chip" id="tInfo" hidden></span><span class="chip temp" id="tTemp" hidden><i></i><span id="tTempV">500 &deg;C</span></span></span></div>
+  <div class="t-chart" id="tChart" hidden><p class="tc-h">Our GC result: ZR&#8209;2B at 500&nbsp;&deg;C</p><svg id="tChartSvg" aria-hidden="true"></svg></div>
+  <div class="cap" id="cap"><h2 id="capT"></h2><p id="capP"></p><div class="eq" id="eq" hidden>C&#8327;H&#8321;&#8326; &rarr; C&#8323;H&#8326; + C&#8324;H&#8321;&#8320;</div></div>
+  <div class="t-ctrl ui" id="tCtrl">
+    <button type="button" id="tPrev" aria-label="Previous step"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 2 4 8l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
+    <button type="button" id="tPlay" aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true" id="tPlayIc"><path d="M4 2h3v12H4zM9 2h3v12H9z" fill="currentColor"/></svg></button>
+    <button type="button" id="tNext" class="go" aria-label="Next step">Next<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 2 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+  <div class="mix ui" id="mix" hidden>
+    <h2>What came out</h2>
+    <p>Our GC measured the gas from every test. Pick a catalyst and a temperature, and the molecules change to match our results.</p>
+    <div class="seg" id="mixCat" role="group" aria-label="Catalyst"></div>
+    <div class="seg" id="mixTemp" role="group" aria-label="Temperature"></div>
+    <div id="mixBars"></div>
+    <p class="mconv" id="mixConv"></p>
+    <div class="mact"><button class="btn btn-start" type="button" id="mixRes">Explore all results</button><button class="btn btn-ghost" type="button" id="mixReplay">Replay tour</button></div>
+  </div>
+</div>
+<div class="flash" id="flash"></div>
+
+<script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
